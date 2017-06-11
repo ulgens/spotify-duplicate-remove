@@ -64,8 +64,14 @@ for pl in playlists:
     uri = pl["uri"]
     playlist_id = uri.split(':')[4]
 
-    # TODO: Get all tracks (pagination)
-    tracks = sp.user_playlist(username, playlist_id)
+    tracks, counter, done = [], 0, False
+    while not done:
+        response = sp.user_playlist_tracks(username, playlist_id, fields="items, next", offset=counter * 100, limit=100)
+        tracks.extend(response["items"])
+        done = not response["next"]
+        counter += 1
+
+    print(len(tracks), " - ", pl["name"], playlist_id)
 
     # TODO: Find duplicates
     # TODO: Show duplicates to user and request approval
