@@ -49,8 +49,13 @@ sp = spotipy.Spotify(auth=token)
 sp.trace = False
 username = sp.me()["id"]
 
-# FIXME: Add pagination support
-playlists = sp.current_user_playlists(offset=0, limit=50)["items"]
+playlists, counter, done = [], 0, False
+while not done:
+    response = sp.current_user_playlists(offset=counter * 50, limit=50)
+    playlists.extend(response["items"])
+    done = not response["next"]
+    counter += 1
+
 playlists = [pl for pl in playlists if pl["owner"]["id"] == username]
 
 # TODO: Choose playlist via simple interface
